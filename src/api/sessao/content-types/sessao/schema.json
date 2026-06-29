@@ -1,0 +1,36 @@
+{
+  "kind": "collectionType",
+  "collectionName": "sessaos",
+  "info": {
+    "singularName": "sessao",
+    "pluralName": "sessaos",
+    "displayName": "Sessao"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "n_sessao": {
+      "type": "uid"
+    },
+    "cinema": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::cinema.cinema",
+      "inversedBy": "sessaos"
+    },
+    "filme": {
+      "type": "string"
+    },
+    "data": {
+      "type": "datetime"
+    },
+    "users_permissions_users": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "plugin::users-permissions.user",
+      "mappedBy": "sessaos"
+    }
+  }
+}

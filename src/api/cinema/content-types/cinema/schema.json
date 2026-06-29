@@ -1,0 +1,27 @@
+{
+  "kind": "collectionType",
+  "collectionName": "cinemas",
+  "info": {
+    "singularName": "cinema",
+    "pluralName": "cinemas",
+    "displayName": "Cinema"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "sessaos": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::sessao.sessao",
+      "mappedBy": "cinema"
+    },
+    "nome": {
+      "type": "string"
+    },
+    "local": {
+      "type": "string"
+    }
+  }
+}
