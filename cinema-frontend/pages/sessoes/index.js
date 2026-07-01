@@ -41,8 +41,12 @@ export default function Sessoes() {
 
     async function handleApagar(id) {
         if (confirm('Apagar esta sessão?')) {
-            await deleteSessao(id);
-            carregar();
+            try {
+                await deleteSessao(id);
+                carregar();
+            } catch (err) {
+                alert('Não foi possível apagar a sessão: ' + err.message);
+            }
         }
     }
 
@@ -69,19 +73,18 @@ export default function Sessoes() {
                 },
                 body: JSON.stringify({
                     data: {
-                        // Relaciona o usuário logado à sessão
-                        users_permissions_users: { connect: [user.id] },
-                        // Subtrai 1 da vaga (se o campo não existir no seu Strapi, isso será ignorado)
-                        vagas_disponiveis: vagasAtuais ? vagasAtuais - 1 : null
+                        users_permissions_users: { connect: [user.id] }
                     }
                 })
             });
 
             if (response.ok) {
                 alert('Lugar reservado com sucesso!');
-                carregar(); // Atualiza a tabela para mostrar as vagas caindo
+                carregar();
             } else {
-                alert('Erro ao realizar a reserva.');
+                const errData = await response.json().catch(() => null);
+                console.error('Erro ao reservar:', errData);
+                alert('Erro ao realizar a reserva: ' + (errData?.error?.message || response.status));
             }
         } catch (error) {
             console.error("Erro na requisição:", error);
@@ -117,7 +120,7 @@ export default function Sessoes() {
                                     onChange={e => setForm({ ...form, cinemaId: e.target.value })} required>
                                 <option value="">Seleciona Cinema</option>
                                 {cinemas.map(c => (
-                                    <option key={c.id} value={c.id}>{attr(c, 'nome')}</option>
+                                    <option key={c.id} value={c.documentId}>{attr(c, 'nome')}</option>
                                 ))}
                             </select>
                         </div>
@@ -159,16 +162,15 @@ export default function Sessoes() {
                                         <div className="d-flex gap-2">
                                             {/* Botão de Reservar para o cliente */}
                                             <button
-                                                onClick={() => handleReservar(s.id, vagas)}
+                                                onClick={() => handleReservar(s.documentId, vagas)}
                                                 className="btn btn-sm btn-primary"
                                                 disabled={vagas !== undefined && vagas <= 0}
                                             >
                                                 Reservar Lugar
                                             </button>
 
-                                            {/* Botão de Apagar (idealmente só para admin, mas mantido conforme seu código) */}
                                             <button
-                                                onClick={() => handleApagar(s.id)}
+                                                onClick={() => handleApagar(s.documentId)}
                                                 className="btn btn-sm btn-outline-danger"
                                             >
                                                 Apagar

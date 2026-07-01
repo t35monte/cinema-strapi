@@ -25,8 +25,12 @@ export default function Cinemas() {
 
     async function handleApagar(id) {
         if (confirm('Apagar este cinema?')) {
-            await deleteCinema(id);
-            carregar();
+            try {
+                await deleteCinema(id);
+                carregar();
+            } catch (err) {
+                alert('Não foi possível apagar o cinema: ' + err.message);
+            }
         }
     }
 
@@ -69,8 +73,8 @@ export default function Cinemas() {
                         <td>{c.local || c.attributes?.local}</td>
                         {isAuth && (
                             <td>
-                                <Link href={`/cinemas/${c.id}`} className="btn btn-sm btn-primary me-2">Editar</Link>
-                                <button onClick={() => handleApagar(c.id)} className="btn btn-sm btn-danger">Apagar</button>
+                                <Link href={`/cinemas/${c.documentId}`} className="btn btn-sm btn-primary me-2">Editar</Link>
+                                <button onClick={() => handleApagar(c.documentId)} className="btn btn-sm btn-danger">Apagar</button>
                             </td>
                         )}
                     </tr>
