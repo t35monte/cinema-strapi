@@ -24,6 +24,8 @@ export default function Navbar() {
             <div className="navbar-nav me-auto">
                 <Link className="nav-link" href="/cinemas">Cinemas</Link>
                 <Link className="nav-link" href="/sessoes">Sessões</Link>
+                {/* NOVO LINK ADICIONADO AQUI */}
+                <Link className="nav-link" href="/bomboniere">Bomboniere</Link>
             </div>
             <div className="navbar-nav">
                 {user ? (
