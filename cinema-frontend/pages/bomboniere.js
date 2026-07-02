@@ -33,7 +33,7 @@ export default function Bomboniere() {
 
     return (
         <div className="container mt-4">
-            <h2 className="mb-4">Bomboniere</h2>
+            <h2 className="mb-4">Produtos</h2>
 
             <div className="row">
                 {/* Lista de Produtos */}
