@@ -30,6 +30,7 @@ async function safeJson(res) {
 }
 
 // LOGIN
+// Alteração na função LOGIN para garantir que apanha o nome ou o type:
 export async function login(identifier, password) {
     const res = await fetch(`${STRAPI_URL}/api/auth/local`, {
         method: 'POST',
@@ -40,8 +41,32 @@ export async function login(identifier, password) {
     if (data.jwt) {
         localStorage.setItem('jwt', data.jwt);
         localStorage.setItem('user', JSON.stringify(data.user));
+        try {
+            const meRes = await fetch(`${STRAPI_URL}/api/users/me?populate=role`, {
+                headers: { Authorization: `Bearer ${data.jwt}` },
+            });
+            const me = await meRes.json();
+
+            // Procura por me.role.name (Ex: "Admin") ou me.role.type (Ex: "admin")
+            const roleUser = me?.role?.name || me?.role?.type;
+            if (roleUser) {
+                localStorage.setItem('role', roleUser);
+            }
+        } catch (e) {
+            console.error('Não foi possível obter o role do utilizador:', e);
+        }
     }
     return data;
+}
+
+// Alteração na função isAdmin para aceitar "Admin" ou "admin"
+export function isAdmin() {
+    if (typeof window === 'undefined') return false;
+    const role = localStorage.getItem('role');
+    if (!role) return false;
+
+    // O .trim() remove espaços em branco no início e no fim automaticamente!
+    return role.trim().toLowerCase() === 'admin';
 }
 
 // REGISTO
@@ -58,6 +83,7 @@ export async function register(username, email, password) {
 export function logout() {
     localStorage.removeItem('jwt');
     localStorage.removeItem('user');
+    localStorage.removeItem('role');
 }
 
 // CINEMAS

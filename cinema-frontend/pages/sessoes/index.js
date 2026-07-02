@@ -1,19 +1,19 @@
 import { useEffect, useState } from 'react';
-import { getSessoes, createSessao, deleteSessao, getCinemas, getToken } from '../../lib/api';
+import { getSessoes, createSessao, deleteSessao, getCinemas, getToken, isAdmin } from '../../lib/api';
 
 export default function Sessoes() {
     const [sessoes, setSessoes] = useState([]);
     const [cinemas, setCinemas] = useState([]);
-    // Adicionado 'vagas_disponiveis' no form inicial (opcional, caso adicione no Strapi)
     const [form, setForm] = useState({ filme: '', data: '', cinemaId: '', vagas_disponiveis: 50 });
     const [isAuth, setIsAuth] = useState(false);
-    const [user, setUser] = useState(null); // Novo estado para guardar os dados do usuário logado
+    const [admin, setAdmin] = useState(false);
+    const [user, setUser] = useState(null);
 
     useEffect(() => {
         const token = getToken();
         setIsAuth(!!token);
+        setAdmin(isAdmin());
 
-        // Se estiver logado, busca o ID do usuário no Strapi para podermos vinculá-lo à reserva
         if (token) {
             fetch('http://localhost:1337/api/users/me', {
                 headers: { 'Authorization': `Bearer ${token}` }
@@ -33,7 +33,6 @@ export default function Sessoes() {
 
     async function handleCriar(e) {
         e.preventDefault();
-        // Nota: Se quiser que a criação defina as vagas, lembre-se de atualizar a função createSessao no lib/api.js para aceitar esse parâmetro.
         await createSessao(form.filme, form.data, form.cinemaId);
         setForm({ filme: '', data: '', cinemaId: '', vagas_disponiveis: 50 });
         carregar();
@@ -50,14 +49,12 @@ export default function Sessoes() {
         }
     }
 
-    // NOVA FUNÇÃO: Reservar o ingresso
     async function handleReservar(sessaoId, vagasAtuais) {
         if (!user) {
             alert('Você precisa estar logado para reservar.');
             return;
         }
 
-        // Se o campo existir e as vagas acabarem
         if (vagasAtuais !== undefined && vagasAtuais <= 0) {
             alert('Sessão esgotada!');
             return;
@@ -89,7 +86,6 @@ export default function Sessoes() {
         }
     }
 
-    // Helper para ler atributos (Strapi 5 vs 4)
     function attr(obj, key) {
         return obj?.[key] ?? obj?.attributes?.[key];
     }
@@ -98,7 +94,7 @@ export default function Sessoes() {
         <div className="container mt-4">
             <h2 className="mb-4">Sessões</h2>
 
-            {isAuth && (
+            {admin && (
                 <div className="card mb-4 p-3 shadow-sm">
                     <h5>Nova Sessão (Admin)</h5>
                     <form onSubmit={handleCriar} className="row g-2 align-items-end">
@@ -158,7 +154,6 @@ export default function Sessoes() {
                                 {isAuth && (
                                     <td>
                                         <div className="d-flex gap-2">
-                                            {/* Botão de Reservar para o cliente */}
                                             <button
                                                 onClick={() => handleReservar(s.documentId, vagas)}
                                                 className="btn btn-sm btn-primary"
@@ -167,12 +162,14 @@ export default function Sessoes() {
                                                 Reservar Lugar
                                             </button>
 
-                                            <button
-                                                onClick={() => handleApagar(s.documentId)}
-                                                className="btn btn-sm btn-outline-danger"
-                                            >
-                                                Apagar
-                                            </button>
+                                            {admin && (
+                                                <button
+                                                    onClick={() => handleApagar(s.documentId)}
+                                                    className="btn btn-sm btn-outline-danger"
+                                                >
+                                                    Apagar
+                                                </button>
+                                            )}
                                         </div>
                                     </td>
                                 )}

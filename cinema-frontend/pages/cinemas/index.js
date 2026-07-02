@@ -1,19 +1,26 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { getCinemas, createCinema, deleteCinema, getToken } from '../../lib/api';
+import { getCinemas, createCinema, deleteCinema } from '../../lib/api';
 
 export default function Cinemas() {
     const [cinemas, setCinemas] = useState([]);
     const [form, setForm] = useState({ nome: '', local: '' });
-    const [isAuth, setIsAuth] = useState(false);
+    const [admin, setAdmin] = useState(false);
 
     useEffect(() => {
-        setIsAuth(!!getToken());
+        // 1. Força a validação do admin diretamente no cliente de forma segura
+        const role = localStorage.getItem('role');
+        if (role && role.toLowerCase() === 'admin') {
+            setAdmin(true);
+        } else {
+            setAdmin(false);
+        }
         carregar();
     }, []);
 
     async function carregar() {
-        setCinemas(await getCinemas());
+        const dados = await getCinemas();
+        setCinemas(dados || []);
     }
 
     async function handleCriar(e) {
@@ -24,6 +31,8 @@ export default function Cinemas() {
     }
 
     async function handleApagar(id) {
+        if (!id) return alert('ID do cinema inválido ou não encontrado.');
+
         if (confirm('Apagar este cinema?')) {
             try {
                 await deleteCinema(id);
@@ -38,8 +47,8 @@ export default function Cinemas() {
         <div>
             <h2>Cinemas</h2>
 
-            {/* Formulário só visível para autenticados */}
-            {isAuth && (
+            {/* Formulário só visível para admin */}
+            {admin && (
                 <div className="card mb-4 p-3">
                     <h5>Adicionar Cinema</h5>
                     <form onSubmit={handleCriar} className="row g-2">
@@ -63,22 +72,36 @@ export default function Cinemas() {
                 <tr>
                     <th>Nome</th>
                     <th>Local</th>
-                    {isAuth && <th>Ações</th>}
+                    {admin && <th>Ações</th>}
                 </tr>
                 </thead>
                 <tbody>
-                {cinemas.map(c => (
-                    <tr key={c.id}>
-                        <td>{c.nome || c.attributes?.nome}</td>
-                        <td>{c.local || c.attributes?.local}</td>
-                        {isAuth && (
-                            <td>
-                                <Link href={`/cinemas/${c.documentId}`} className="btn btn-sm btn-primary me-2">Editar</Link>
-                                <button onClick={() => handleApagar(c.documentId)} className="btn btn-sm btn-danger">Apagar</button>
-                            </td>
-                        )}
-                    </tr>
-                ))}
+                {cinemas.map(c => {
+                    // 2. Extração segura dos dados (Trata o padrão do Strapi v4 e v5)
+                    const nome = c.nome || c.attributes?.nome;
+                    const local = c.local || c.attributes?.local;
+
+                    // Descobre onde está o ID correto (se na raiz ou dentro de attributes)
+                    const idParaAcoes = c.documentId || c.id || c.attributes?.documentId || c.attributes?.id;
+
+                    return (
+                        <tr key={c.id || idParaAcoes}>
+                            <td>{nome}</td>
+                            <td>{local}</td>
+                            {/* Botões só visíveis para admin */}
+                            {admin && (
+                                <td>
+                                    <Link href={`/cinemas/${idParaAcoes}`} className="btn btn-sm btn-primary me-2">
+                                        Editar
+                                    </Link>
+                                    <button onClick={() => handleApagar(idParaAcoes)} className="btn btn-sm btn-danger">
+                                        Apagar
+                                    </button>
+                                </td>
+                            )}
+                        </tr>
+                    );
+                })}
                 </tbody>
             </table>
         </div>
