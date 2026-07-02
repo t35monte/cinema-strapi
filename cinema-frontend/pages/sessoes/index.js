@@ -65,16 +65,14 @@ export default function Sessoes() {
 
         try {
             const token = getToken();
-            const response = await fetch(`http://localhost:1337/api/sessaos/${sessaoId}`, {
+            const response = await fetch(`http://localhost:1337/api/users/${user.id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({
-                    data: {
-                        users_permissions_users: { connect: [user.id] }
-                    }
+                    sessaos: { connect: [sessaoId] }
                 })
             });
 
