@@ -57,7 +57,7 @@ export default function Bomboniere() {
                                         )}
                                         <div className="card-body text-center d-flex flex-column">
                                             <h6 className="card-title">{attr(prod, 'descricao')}</h6>
-                                            <p className="card-text fw-bold text-success mb-3">{attr(prod, 'preco')?.toFixed(2)}€</p>
+                                            <p className="card-text fw-bold text-success mb-3">{attr(prod, 'preco')?.toFixed(2)} €</p>
 
                                             <button
                                                 className="btn btn-primary mt-auto"
@@ -88,7 +88,7 @@ export default function Bomboniere() {
                                     <li className="list-group-item d-flex justify-content-between align-items-center" key={index}>
                                         <small>{attr(item, 'descricao')}</small>
                                         <div className="d-flex align-items-center gap-2">
-                                            <span className="fw-bold">R$ {attr(item, 'preco')?.toFixed(2)}</span>
+                                            <span className="fw-bold">{attr(item, 'preco')?.toFixed(2)} €</span>
                                             <button className="btn btn-sm btn-danger py-0 px-2" onClick={() => removerDoCarrinho(index)}>x</button>
                                         </div>
                                     </li>
@@ -97,7 +97,7 @@ export default function Bomboniere() {
                         </ul>
                         <div className="card-footer d-flex justify-content-between align-items-center">
                             <span className="fw-bold">Total:</span>
-                            <span className="fw-bold text-success fs-5">R$ {total.toFixed(2)}</span>
+                            <span className="fw-bold text-success fs-5">{total.toFixed(2)} €</span>
                         </div>
                         <div className="card-body">
                             {!isAuth ? (
