@@ -56,7 +56,7 @@ export default function Bomboniere() {
                                         )}
                                         <div className="card-body text-center d-flex flex-column">
                                             <h6 className="card-title">{attr(prod, 'descricao')}</h6>
-                                            <p className="card-text fw-bold text-success mb-3">R$ {attr(prod, 'preco')?.toFixed(2)}</p>
+                                            <p className="card-text fw-bold text-success mb-3">{attr(prod, 'preco')?.toFixed(2)}€</p>
 
                                             <button
                                                 className="btn btn-primary mt-auto"
