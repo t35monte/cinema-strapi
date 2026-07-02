@@ -41,7 +41,8 @@ export default function Bomboniere() {
                     <div className="row g-3">
                         {produtos.map(prod => {
                             // Monta a URL da imagem (ajustar se estiver em produção)
-                            const imgData = attr(prod, 'img')?.data;
+                            const imgRaw = attr(prod, 'img');
+                            const imgData = imgRaw?.data ?? imgRaw;
                             const imgUrl = imgData ? `http://localhost:1337${attr(imgData, 'url')}` : null;
 
                             return (

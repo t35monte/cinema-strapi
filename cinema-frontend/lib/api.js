@@ -14,6 +14,21 @@ export function authHeaders() {
     return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
+async function safeJson(res) {
+    const text = await res.text();
+    let data = null;
+    try {
+        data = text ? JSON.parse(text) : null;
+    } catch (e) {
+        data = null;
+    }
+    if (!res.ok) {
+        const msg = data?.error?.message || `Erro ${res.status}`;
+        throw new Error(msg);
+    }
+    return data;
+}
+
 // LOGIN
 export async function login(identifier, password) {
     const res = await fetch(`${STRAPI_URL}/api/auth/local`, {
@@ -85,7 +100,7 @@ export async function deleteCinema(id) {
         method: 'DELETE',
         headers: authHeaders(),
     });
-    return res.json();
+    return safeJson(res);
 }
 
 // SESSÕES
@@ -120,5 +135,5 @@ export async function deleteSessao(id) {
         method: 'DELETE',
         headers: authHeaders(),
     });
-    return res.json();
+    return safeJson(res);
 }
